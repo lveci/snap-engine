@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
   ~
   ~ This program is free software; you can redistribute it and/or modify it
   ~ under the terms of the GNU General Public License as published by the Free
@@ -22,7 +23,7 @@
 
     <groupId>org.esa.snap</groupId>
     <artifactId>snap-engine</artifactId>
-    <version>6.0.0-SNAPSHOT</version>
+    <version>6.0.0-Skywatch-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>SNAP Engine Project</name>
@@ -716,6 +717,18 @@
 
     <repositories>
         <repository>
+          <id>skywatch-dev</id>
+          <url>s3://skywatch-dev/mavenrepo/release</url>
+          <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+        </repository>
+        <repository>
             <id>snap-repo-public</id>
             <name>Public Maven Repository for SNAP</name>
             <url>http://nexus.senbox.net/nexus/content/repositories/public/</url>
@@ -731,18 +744,14 @@
     </repositories>
 
     <distributionManagement>
-        <repository>
-            <id>snap-repo-public</id>
-            <name>Public Maven Repository for SNAP</name>
-            <url>http://nexus.senbox.net/nexus/content/repositories/releases/</url>
-            <uniqueVersion>false</uniqueVersion>
-        </repository>
         <snapshotRepository>
-            <id>snap-repo-public</id>
-            <name>Public Maven Snapshot Repository for SNAP</name>
-            <url>http://nexus.senbox.net/nexus/content/repositories/snapshots/</url>
-            <uniqueVersion>false</uniqueVersion>
+          <id>skywatch-dev</id>
+          <url>s3://skywatch-dev/mavenrepo/snapshot</url>
         </snapshotRepository>
+        <repository>
+          <id>skywatch-dev</id>
+          <url>s3://skywatch-dev/mavenrepo/release</url>
+        </repository>
     </distributionManagement>
 
 
@@ -918,6 +927,9 @@
                 <plugin>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>2.9</version>
+                    <configuration>
+                        <useBaseVersion>true</useBaseVersion>
+                    </configuration>
                 </plugin>
 
                 <plugin>
@@ -1031,6 +1043,14 @@
                 </executions>
             </plugin>
         </plugins>
+        
+        <extensions>
+          <extension>
+            <groupId>org.kuali.maven.wagons</groupId>
+            <artifactId>maven-s3-wagon</artifactId>
+            <version>1.2.1</version>
+          </extension>
+        </extensions>
     </build>
 
     <developers>
