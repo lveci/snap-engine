@@ -108,8 +108,6 @@ class BigGeoTiffProductWriter extends AbstractProductWriter {
 
     @Override
     protected void writeProductNodesImpl() throws IOException {
-        outputFile = null;
-
         final File file;
         if (getOutput() instanceof String) {
             file = new File((String) getOutput());
@@ -117,7 +115,10 @@ class BigGeoTiffProductWriter extends AbstractProductWriter {
             file = (File) getOutput();
         }
 
-        outputFile = FileUtils.ensureExtension(file, Constants.FILE_EXTENSIONS[0]);
+        outputFile = file;
+        if(!file.getName().toLowerCase().endsWith(Constants.FILE_EXTENSIONS[0])) {
+            outputFile = FileUtils.ensureExtension(file, Constants.FILE_EXTENSIONS[0]);
+        }
 
         deleteOutput();
         updateProductName();

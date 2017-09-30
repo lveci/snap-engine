@@ -62,7 +62,6 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
      */
     @Override
     protected void writeProductNodesImpl() throws IOException {
-        outputFile = null;
         outputStream = null;
         bandWriter = null;
 
@@ -73,7 +72,10 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
             file = (File) getOutput();
         }
 
-        outputFile = FileUtils.ensureExtension(file, GeoTiffProductWriterPlugIn.GEOTIFF_FILE_EXTENSION[0]);
+        outputFile = file;
+        if(!file.getName().toLowerCase().endsWith(GeoTiffProductWriterPlugIn.GEOTIFF_FILE_EXTENSION[0])) {
+            outputFile = FileUtils.ensureExtension(file, GeoTiffProductWriterPlugIn.GEOTIFF_FILE_EXTENSION[0]);
+        }
         deleteOutput();
 
         ensureNamingConvention();

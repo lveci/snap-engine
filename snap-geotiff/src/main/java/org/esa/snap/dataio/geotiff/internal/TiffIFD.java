@@ -183,6 +183,8 @@ public class TiffIFD {
         if (colorMap != null) {
             setEntry(new TiffDirectoryEntry(TiffTag.PHOTOMETRIC_INTERPRETATION, TiffCode.PHOTOMETRIC_RGB_PALETTE));
             setEntry(new TiffDirectoryEntry(TiffTag.COLOR_MAP, colorMap));
+        } else if(getNumBands(product) == 3) {
+            setEntry(new TiffDirectoryEntry(TiffTag.PHOTOMETRIC_INTERPRETATION, TiffCode.PHOTOMETRIC_RGB));
         } else {
             setEntry(new TiffDirectoryEntry(TiffTag.PHOTOMETRIC_INTERPRETATION, TiffCode.PHOTOMETRIC_BLACK_IS_ZERO));
         }
