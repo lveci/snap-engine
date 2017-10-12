@@ -196,7 +196,7 @@ public class TiffIFD {
         final Band[] bands = product.getBands();
         final List<Band> bandList = new ArrayList<Band>(bands.length);
         for (Band band : bands) {
-            if (Utils.shouldWriteNode(band)) {
+            if (Utils.shouldWriteNode(band) && !band.isFlagBand()) {
                 bandList.add(band);
             }
         }
