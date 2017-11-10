@@ -340,6 +340,7 @@ public class QuicklookGenerator {
 
     public static boolean writeImage(final BufferedImage bufferedImage, final File quickLookFile) {
         try {
+            quickLookFile.getParentFile().mkdirs();
             if (quickLookFile.createNewFile()) {
                 //ImageIO.write(bufferedImage, "JPG", quickLookFile);
 
