@@ -267,8 +267,12 @@ public class ConvertDataTypeOp extends Operator {
             final ProductData srcData = srcTile.getRawSamples();
             final ProductData dstData = targetTile.getRawSamples();
 
-            final Double srcNoDataValue = sourceBand.getNoDataValue();
-            final Double destNoDataValue = targetBand.getNoDataValue();
+            Double srcNoDataValue = sourceBand.getNoDataValue();
+            Double destNoDataValue = targetBand.getNoDataValue();
+
+            if(sourceBand.isScalingApplied()) {
+                srcNoDataValue = sourceBand.scale(srcNoDataValue);
+            }
 
             if (scaling == ScalingType.LINEAR_PEAK_CLIPPED) {
                 final Histogram histogram = new Histogram(stx.getHistogramBins(), origMin, origMax);
