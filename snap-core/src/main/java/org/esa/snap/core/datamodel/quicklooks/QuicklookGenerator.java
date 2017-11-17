@@ -69,11 +69,15 @@ public class QuicklookGenerator {
             "t11", "t22", "t33", "c11", "c22", "c33"
     };
 
-    private final int maxWidth;
+    private int maxWidth;
 
     public QuicklookGenerator() {
         final Preferences preferences = Config.instance().preferences();
         maxWidth = preferences.getInt(PREFERENCE_KEY_QUICKLOOKS_MAX_WIDTH, DEFAULT_VALUE_QUICKLOOKS_MAX_WIDTH);
+    }
+
+    public void setMaxWidth(final int maxWidth) {
+        this.maxWidth = maxWidth;
     }
 
     public BufferedImage createQuickLookFromBrowseProduct(final Product browseProduct) throws IOException {
