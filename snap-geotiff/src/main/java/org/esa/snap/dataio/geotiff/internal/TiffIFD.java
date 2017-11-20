@@ -173,6 +173,7 @@ public class TiffIFD {
         setEntry(new TiffDirectoryEntry(TiffTag.RESOLUTION_UNIT, new TiffShort(1)));
         setEntry(new TiffDirectoryEntry(TiffTag.PLANAR_CONFIGURATION, TiffCode.PLANAR_CONFIG_PLANAR));
         setEntry(new TiffDirectoryEntry(TiffTag.SAMPLE_FORMAT, calculateSampleFormat(product)));
+        setEntry(new TiffDirectoryEntry(TiffTag.GDALNodataTag, new TiffAscii(String.valueOf(product.getBandAt(0).getGeophysicalNoDataValue()))));
         setEntry(new TiffDirectoryEntry(TiffTag.BEAM_METADATA, getBeamMetadata(product)));
 
         TiffShort[] colorMap = null;
