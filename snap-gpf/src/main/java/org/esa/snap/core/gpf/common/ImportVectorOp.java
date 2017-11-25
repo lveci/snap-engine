@@ -95,14 +95,14 @@ public class ImportVectorOp extends Operator {
             }
 
             if (vectorFile != null) {
-                importGeometry(targetProduct, vectorFile);
+                importGeometry(targetProduct, vectorFile, separateShapes);
             }
         } catch (Throwable e) {
             throw new OperatorException(e);
         }
     }
 
-    private void importGeometry(final Product product, final File file) {
+    public static void importGeometry(final Product product, final File file, final boolean separateShapes) {
 
         final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (isShapefile(file) && (geoCoding == null || !geoCoding.canGetPixelPos())) {
