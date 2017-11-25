@@ -73,11 +73,11 @@ public class ConvertDataTypeOp extends Operator {
     private String targetDataType = ProductData.TYPESTRING_UINT8;
     private int dataType = ProductData.TYPE_UINT8;
 
-    @Parameter(label = "Source min value", defaultValue = "0")
-    private Double srcMinValue = 0d;
+    @Parameter(label = "Source band min value map")
+    private Map<String, Double> srcMinValue = new HashMap<>();
 
-    @Parameter(label = "Source max value", defaultValue = "0")
-    private Double srcMaxValue = 0d;
+    @Parameter(label = "Source band max value map")
+    private Map<String, Double> srcMaxValue = new HashMap<>();
 
     @Parameter(valueSet = {SCALING_TRUNCATE, SCALING_LINEAR,
             SCALING_LINEAR_CLIPPED, SCALING_LINEAR_PEAK_CLIPPED,
@@ -117,11 +117,6 @@ public class ConvertDataTypeOp extends Operator {
         ensureSingleRasterSize(sourceProduct);
 
         try {
-            if(srcMinValue == null)
-                srcMinValue = 0d;
-            if(srcMaxValue == null)
-                srcMinValue = 0d;
-
             targetProduct = new Product(sourceProduct.getName(),
                     sourceProduct.getProductType(),
                     sourceProduct.getSceneRasterWidth(),
@@ -225,34 +220,24 @@ public class ConvertDataTypeOp extends Operator {
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
         try {
-            SystemUtils.LOG.info("ConvertDataType computing " + targetTile.toString());
-
             final Band sourceBand = sourceProduct.getBand(targetBand.getName());
-            SystemUtils.LOG.info("Get source tile for band " + sourceBand.getName());
             final Tile srcTile = getSourceTile(sourceBand, targetTile.getRectangle());
 
             if(stxMap.get(sourceBand) == null) {
-                SystemUtils.LOG.info("ConvertDataType calc stats");
                 calculateStatistics(sourceBand);
             }
 
             final Stx stx = stxMap.get(sourceBand);
             double origMin = stx.getMinimum();
             double origMax = stx.getMaximum();
-            SystemUtils.LOG.info("ConvertDataType stx min max " + origMin + ", " + origMax);
-            SystemUtils.LOG.info("ConvertDataType srcMinValue srcMaxValue " + srcMinValue + ", " + srcMinValue);
+            //SystemUtils.LOG.info("ConvertDataType stx min max " + origMin + ", " + origMax);
+            //SystemUtils.LOG.info("ConvertDataType srcMinValue srcMaxValue " + srcMinValue + ", " + srcMaxValue);
 
-            if(srcMinValue != null && srcMinValue != 0) {
-                origMin = srcMinValue;
-                if(sourceBand.isScalingApplied()) {
-                    origMin = sourceBand.scale(origMin);
-                }
+            if(srcMinValue != null && srcMinValue.containsKey(sourceBand.getName())) {
+                origMin = srcMinValue.get(sourceBand.getName());
             }
-            if(srcMaxValue != null && srcMaxValue != 0) {
-                origMax = srcMaxValue;
-                if(sourceBand.isScalingApplied()) {
-                    origMin = sourceBand.scale(origMax);
-                }
+            if(srcMaxValue != null && srcMaxValue.containsKey(sourceBand.getName())) {
+                origMax = srcMaxValue.get(sourceBand.getName());
             }
             ScalingType scaling = verifyScaling(targetScaling, dataType);
 
@@ -295,8 +280,8 @@ public class ConvertDataTypeOp extends Operator {
             }
             final double origRange = origMax - origMin;
 
-            SystemUtils.LOG.info("ConvertDataType originMin:"+ origMin + " orginMax:"+ origMax);
-            SystemUtils.LOG.info("ConvertDataType newMin:"+ newMin + " newMax:"+ newMax);
+            //SystemUtils.LOG.info("ConvertDataType originMin:"+ origMin + " orginMax:"+ origMax);
+            //SystemUtils.LOG.info("ConvertDataType newMin:"+ newMin + " newMax:"+ newMax);
 
             final int numElem = dstData.getNumElems();
             double srcValue;
