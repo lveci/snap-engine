@@ -73,10 +73,10 @@ public class ConvertDataTypeOp extends Operator {
     private String targetDataType = ProductData.TYPESTRING_UINT8;
     private int dataType = ProductData.TYPE_UINT8;
 
-    @Parameter(label = "Source band min value map")
+    //@Parameter(label = "Source band min value map")
     private Map<String, Double> srcMinValue = new HashMap<>();
 
-    @Parameter(label = "Source band max value map")
+    //@Parameter(label = "Source band max value map")
     private Map<String, Double> srcMaxValue = new HashMap<>();
 
     @Parameter(valueSet = {SCALING_TRUNCATE, SCALING_LINEAR,
@@ -230,8 +230,6 @@ public class ConvertDataTypeOp extends Operator {
             final Stx stx = stxMap.get(sourceBand);
             double origMin = stx.getMinimum();
             double origMax = stx.getMaximum();
-            //SystemUtils.LOG.info("ConvertDataType stx min max " + origMin + ", " + origMax);
-            //SystemUtils.LOG.info("ConvertDataType srcMinValue srcMaxValue " + srcMinValue + ", " + srcMaxValue);
 
             if(srcMinValue != null && srcMinValue.containsKey(sourceBand.getName())) {
                 origMin = srcMinValue.get(sourceBand.getName());
@@ -239,10 +237,17 @@ public class ConvertDataTypeOp extends Operator {
             if(srcMaxValue != null && srcMaxValue.containsKey(sourceBand.getName())) {
                 origMax = srcMaxValue.get(sourceBand.getName());
             }
+
             ScalingType scaling = verifyScaling(targetScaling, dataType);
 
-            final double newMin = getMin(dataType);
-            final double newMax = getMax(dataType);
+            double newMin = getMin(dataType);
+            if(newMin == targetNoDataValue) {
+                newMin += 1;
+            }
+            double newMax = getMax(dataType);
+            if(newMax == targetNoDataValue) {
+                newMax -= 1;
+            }
             final double newRange = newMax - newMin;
 
             if (origMax <= newMax && origMin >= newMin && sourceBand.getDataType() < ProductData.TYPE_FLOAT32) {
@@ -279,9 +284,6 @@ public class ConvertDataTypeOp extends Operator {
                 origMax = autoStretchRange.getMax();
             }
             final double origRange = origMax - origMin;
-
-            //SystemUtils.LOG.info("ConvertDataType originMin:"+ origMin + " orginMax:"+ origMax);
-            //SystemUtils.LOG.info("ConvertDataType newMin:"+ newMin + " newMax:"+ newMax);
 
             final int numElem = dstData.getNumElems();
             double srcValue;
