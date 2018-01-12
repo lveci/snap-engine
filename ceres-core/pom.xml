@@ -53,6 +53,11 @@
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.8</version>
+        </dependency>
         <!--
         <dependency>
             <groupId>commons-codec</groupId>
@@ -95,6 +100,8 @@
                         <publicPackage>org.apache.commons.math3.*</publicPackage>
                         <publicPackage>org.apache.commons.cli.*</publicPackage>
                         <publicPackage>org.apache.commons.collections.*</publicPackage>
+						<publicPackage>org.apache.commons.compress.*</publicPackage>
+						<publicPackage>org.tukaani.xz.*</publicPackage>
                         <!--
                         <publicPackage>org.apache.commons.codec.*</publicPackage>
                         -->

@@ -16,6 +16,9 @@
 
 package com.bc.ceres.core;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -26,26 +29,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URI;
 import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 // todo - fully support "." and ".." directories.
 
@@ -153,7 +149,7 @@ public abstract class VirtualDir {
                 return new Dir(file);
             }
             try {
-                return new Zip(new ZipFile(file));
+                return new Zip(new ZipFile(file), file);
             } catch (IOException ignored) {
                 return null;
             }
@@ -310,15 +306,24 @@ public abstract class VirtualDir {
         private static final int BUFFER_SIZE = 4 * 1024 * 1024;
 
         private ZipFile zipFile;
+        private File baseZipFile;
         private File tempZipFileDir;
 
-        private Zip(ZipFile zipFile) {
+        private Zip(ZipFile zipFile, File baseZipFile) {
             this.zipFile = zipFile;
+            this.baseZipFile = baseZipFile;
         }
 
         @Override
         public String getBasePath() {
-            return zipFile.getName();
+            try {
+                System.out.println(baseZipFile.getPath());
+                System.out.println(baseZipFile.getAbsolutePath());
+                System.out.println(baseZipFile.getCanonicalPath());
+            } catch (Exception e) {
+
+            }
+            return baseZipFile.getPath();
         }
 
         @Override
@@ -329,7 +334,7 @@ public abstract class VirtualDir {
         @Override
         public File getFile(String path) throws IOException {
 
-            ZipEntry zipEntry = getEntry(path);
+            ZipArchiveEntry zipEntry = getEntry(path);
 
             if (tempZipFileDir == null) {
                 tempZipFileDir = VirtualDir.createUniqueTempDir();
@@ -359,9 +364,9 @@ public abstract class VirtualDir {
             }
             boolean dirSeen = false;
             TreeSet<String> nameSet = new TreeSet<>();
-            Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
+            Enumeration<? extends ZipArchiveEntry> enumeration = zipFile.getEntries();
             while (enumeration.hasMoreElements()) {
-                ZipEntry zipEntry = enumeration.nextElement();
+                ZipArchiveEntry zipEntry = enumeration.nextElement();
                 String name = zipEntry.getName();
                 if (name.startsWith(path)) {
                     int i1 = path.length();
@@ -387,7 +392,7 @@ public abstract class VirtualDir {
         @Override
         public boolean exists(String path) {
             try {
-                ZipEntry zipEntry = getEntry(path);
+                ZipArchiveEntry zipEntry = getEntry(path);
                 return zipEntry != null;
             } catch (FileNotFoundException e) {
                 return false;
@@ -397,9 +402,9 @@ public abstract class VirtualDir {
         @Override
         public String[] listAllFiles() {
             List<String> filenameList = new ArrayList<>();
-            Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
+            Enumeration<? extends ZipArchiveEntry> enumeration = zipFile.getEntries();
             while (enumeration.hasMoreElements()) {
-                ZipEntry zipEntry = enumeration.nextElement();
+                ZipArchiveEntry zipEntry = enumeration.nextElement();
                 if (!zipEntry.isDirectory()) {
                     filenameList.add(zipEntry.getName());
                 }
@@ -445,7 +450,7 @@ public abstract class VirtualDir {
             }
         }
 
-        private InputStream getInputStream(ZipEntry zipEntry) throws IOException {
+        private InputStream getInputStream(ZipArchiveEntry zipEntry) throws IOException {
             InputStream inputStream = zipFile.getInputStream(zipEntry);
             if (zipEntry.getName().endsWith(".gz")) {
                 return new GZIPInputStream(inputStream);
@@ -453,15 +458,19 @@ public abstract class VirtualDir {
             return inputStream;
         }
 
-        private ZipEntry getEntry(String path) throws FileNotFoundException {
-            ZipEntry zipEntry = zipFile.getEntry(path);
+        private ZipArchiveEntry getEntry(String path) throws FileNotFoundException {
+            ZipArchiveEntry zipEntry = zipFile.getEntry(path);
             if (zipEntry == null) {
-                throw new FileNotFoundException(zipFile.getName() + "!" + path);
+                // try folder
+                zipEntry = zipFile.getEntry(path+'/');
+                if (zipEntry == null) {
+                    throw new FileNotFoundException(baseZipFile.getPath() + "!" + path);
+                }
             }
             return zipEntry;
         }
 
-        private void unzip(ZipEntry zipEntry, File tempFile) throws IOException {
+        private void unzip(ZipArchiveEntry zipEntry, File tempFile) throws IOException {
             try (InputStream is = zipFile.getInputStream(zipEntry)) {
                 if (is != null) {
                     tempFile.getParentFile().mkdirs();
