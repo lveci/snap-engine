@@ -25,7 +25,9 @@ import net.sf.sevenzipjbinding.SevenZip;
 import net.sf.sevenzipjbinding.SevenZipException;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 
@@ -42,11 +44,12 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
+import java.util.Enumeration;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
 
 /**
  * For zipping and unzipping compressed files
@@ -70,7 +73,7 @@ public class ZipUtils {
 
     public static boolean findInZip(final File file, final String prefix, final String suffix) {
         try {
-            final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
+            final java.util.zip.ZipFile productZip = new java.util.zip.ZipFile(file, java.util.zip.ZipFile.OPEN_READ);
 
             final Optional result = productZip.stream()
                     .filter(ze -> !ze.isDirectory())
@@ -85,27 +88,31 @@ public class ZipUtils {
     }
 
     public static String getRootFolder(final File file, final String headerFileName) throws IOException {
-        final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
+        final ZipFile productZip = new ZipFile(file);
+        final Enumeration<ZipArchiveEntry> entries = productZip.getEntriesInPhysicalOrder();
+        String returnPath = "";
 
-        final Optional result = productZip.stream()
-                .filter(ze -> !ze.isDirectory())
-                .filter(ze -> ze.getName().toLowerCase().endsWith(headerFileName))
-                .findFirst();
-        if(result.isPresent()) {
-            ZipEntry ze = (ZipEntry) result.get();
-            String path = ze.toString();
-            int sepIndex = path.lastIndexOf('/');
-            if (sepIndex > 0) {
-                return path.substring(0, sepIndex) + '/';
-            } else {
-                return "";
+        while(entries.hasMoreElements()) {
+            final ZipArchiveEntry ze = entries.nextElement();
+            if(!ze.isDirectory() && ze.getName().endsWith(headerFileName)) {
+                String path = ze.toString();
+                int sepIndex = path.lastIndexOf('/');
+                if (sepIndex > 0) {
+                    returnPath = path.substring(0, sepIndex) + '/';
+                    break;
+                } else {
+                    returnPath = "";
+                    break;
+                }
             }
         }
-        return "";
+        productZip.close();
+
+        return returnPath;
     }
 
     public static boolean isValid(final File file) {
-        try (ZipFile zipfile = new ZipFile(file)) {
+        try (java.util.zip.ZipFile zipfile = new java.util.zip.ZipFile(file)) {
             try (ZipInputStream zis = new ZipInputStream(new FileInputStream(file))) {
                 ZipEntry ze = zis.getNextEntry();
                 if (ze == null) {
@@ -183,7 +190,7 @@ public class ZipUtils {
 
         try (FileInputStream inputStream = new FileInputStream(file.getPath())) {
 
-            ZipEntry entry = new ZipEntry(file.getName());
+            ZipArchiveEntry entry = new ZipArchiveEntry(file.getName());
             entry.setCreationTime(FileTime.fromMillis(file.lastModified()));
             zipStream.putNextEntry(entry);
 
