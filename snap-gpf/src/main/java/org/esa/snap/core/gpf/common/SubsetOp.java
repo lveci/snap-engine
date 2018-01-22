@@ -117,6 +117,10 @@ public class SubsetOp extends Operator {
             description = "Whether to copy the metadata of the source product.")
     private boolean copyMetadata = false;
 
+    @Parameter(defaultValue = "0",
+            description = "The number of pixels extended from the boundary of the subset)")
+    private int numBorderPixels = 0;
+
     private transient ProductReader subsetReader;
 
     public SubsetOp() {
@@ -196,7 +200,7 @@ public class SubsetOp extends Operator {
         }
 
         if (geoRegion != null) {
-            region = computePixelRegion(sourceProduct, geoRegion, 0);
+            region = computePixelRegion(sourceProduct, geoRegion, numBorderPixels);
             if (region.isEmpty()) {
                 targetProduct = new Product("Empty_" + sourceProduct.getName(), "EMPTY", 0, 0);
                 String msg = "No intersection with source product boundary " + sourceProduct.getName();
