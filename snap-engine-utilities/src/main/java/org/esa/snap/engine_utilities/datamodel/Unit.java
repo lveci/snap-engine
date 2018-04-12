@@ -27,6 +27,8 @@ public final class Unit {
     public static final String PHASE = "phase";
     public static final String ABS_PHASE = "abs_phase";
     public static final String COHERENCE = "coherence";
+    public static final String TOA_REFLECTANCE = "toa_reflectance";
+    public static final String BOA_REFLECTANCE = "boa_reflectance";
 
     public static final String REAL = "real";
     public static final String IMAGINARY = "imaginary";
