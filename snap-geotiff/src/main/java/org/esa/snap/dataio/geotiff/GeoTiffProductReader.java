@@ -433,7 +433,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
                 tiePoints[3] -= 180.0;
             }
 
-            if (canCreateTiePointGeoCoding(tiePoints)) {
+            if (false) { //canCreateTiePointGeoCoding(tiePoints)) {
                 applyTiePointGeoCoding(info, tiePoints, product);
             } else if (canCreateGcpGeoCoding(tiePoints)) {
                 applyGcpGeoCoding(info, tiePoints, product);
