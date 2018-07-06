@@ -86,7 +86,7 @@ public class Resample {
         final double[] background = new double[]{noDataValue};
         final BorderExtender borderExtender;
         if (XArray.allEquals(background, 0)) {
-            borderExtender = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
+            borderExtender = BorderExtender.createInstance(BorderExtender.BORDER_REFLECT);
         } else {
             borderExtender = new BorderExtenderConstant(background);
         }
