@@ -55,6 +55,7 @@ public class GPF {
     public static final String USE_FILE_TILE_CACHE_PROPERTY = "snap.gpf.useFileTileCache";
     public static final String TILE_COMPUTATION_OBSERVER_PROPERTY = "snap.gpf.tileComputationObserver";
     public static final String BEEP_AFTER_PROCESSING_PROPERTY = "snap.gpf.beepAfterProcessing";
+    public static final String SNAP_GPF_ALLOW_AUXDATA_DOWNLOAD = "snap.gpf.allowAuxdataDownload";
 
     public static final String SOURCE_PRODUCT_FIELD_NAME = "sourceProduct";
     public static final String TARGET_PRODUCT_FIELD_NAME = "targetProduct";
@@ -78,7 +79,7 @@ public class GPF {
      * @see #createProduct(String, Map, Product ...)
      * @see #createProduct(String, Map, Map)
      */
-    public static final Map<String, Object> NO_PARAMS = Collections.unmodifiableMap(new TreeMap<String, Object>());
+    public static final Map<String, Object> NO_PARAMS = Collections.unmodifiableMap(new TreeMap<>());
 
     /**
      * An unmodifiable empty {@link Map Map}.
@@ -88,7 +89,7 @@ public class GPF {
      *
      * @see #createProduct(String, Map, Map)
      */
-    public static final Map<String, Product> NO_SOURCES = Collections.unmodifiableMap(new TreeMap<String, Product>());
+    public static final Map<String, Product> NO_SOURCES = Collections.unmodifiableMap(new TreeMap<>());
 
     private static GPF defaultInstance;
 
@@ -227,8 +228,7 @@ public class GPF {
             OperatorSpi operatorSpi = GPF.getDefaultInstance().spiRegistry.getOperatorSpi(operatorName);
             if (operatorSpi == null) {
                 throw new OperatorException(
-                        String.format("Unknown operator '%s'. Note that operator aliases are case sensitive.",
-                                      operatorName));
+                        String.format("Unknown operator '%s'. Is the name correctly spelled?", operatorName));
             }
 
             sourceProductMap = new HashMap<>(sourceProducts.length * 3);
