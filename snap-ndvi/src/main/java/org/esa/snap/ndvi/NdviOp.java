@@ -83,7 +83,7 @@ public class NdviOp extends Operator {
             rasterDataNodeType = Band.class)
     private String nirSourceBand;
 
-    private static final float nodatavalue = Float.NaN;
+    private static final float nodatavalue = -99;//Float.NaN;
 
     @Override
     public void initialize() throws OperatorException {
